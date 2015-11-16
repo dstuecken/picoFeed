@@ -12,7 +12,8 @@ class Item
     /**
      * List of known RTL languages.
      *
-     * @var public
+     * @public
+     * @var array
      */
     public $rtl = array(
         'ar',  // Arabic (ar-**)
@@ -226,5 +227,46 @@ class Item
     public function isRTL()
     {
         return Parser::isLanguageRTL($this->language);
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        $this->xml = (string) $this->xml;
+
+        return serialize($this);
+    }
+
+    /**
+     * @param string $data
+     */
+    public function unserialize($data)
+    {
+        if ($data)
+        {
+            /**
+             * @var $feed Item
+             */
+            $item = unserialize($data);
+
+            if (is_a($item, 'PicoFeed\\Parser\\Item'))
+            {
+                $this->author         = $item->author;
+                $this->url            = $item->url;
+                $this->content        = $item->content;
+                $this->date           = $item->date;
+                $this->enclosure_type = $item->enclosure_type;
+                $this->enclosure_url  = $item->enclosure_url;
+                $this->rtl            = $item->rtl;
+                $this->id             = $item->id;
+                $this->language       = $item->language;
+                $this->namespaces     = $item->namespaces;
+                $this->title          = $item->title;
+
+                $this->xml = new \SimpleXMLElement($item->xml);
+            }
+        }
     }
 }
