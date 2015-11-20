@@ -230,43 +230,29 @@ class Item
     }
 
     /**
-     * @return string
+     * Sleep method is used to transfor the SimpleXML (resource) back to it's original string,
+     * so that a deserialization can re-create a fresh new SimpleXMLElement instance
+     *
+     * @return array
      */
-    public function serialize()
+    public function __sleep()
     {
-        $this->xml = (string) $this->xml;
+        if ($this->xml)
+        {
+            $this->xml = (string) $this->xml;
+        }
 
-        return serialize($this);
+        return array_keys(get_object_vars($this));
     }
 
     /**
-     * @param string $data
+     * Wakeup call to re-establish unserialized xml data to a SimpleXMLElement instance
      */
-    public function unserialize($data)
+    public function __wakeup()
     {
-        if ($data)
+        if (trim($this->xml))
         {
-            /**
-             * @var $feed Item
-             */
-            $item = unserialize($data);
-
-            if (is_a($item, 'PicoFeed\\Parser\\Item'))
-            {
-                $this->author         = $item->author;
-                $this->url            = $item->url;
-                $this->content        = $item->content;
-                $this->date           = $item->date;
-                $this->enclosure_type = $item->enclosure_type;
-                $this->enclosure_url  = $item->enclosure_url;
-                $this->rtl            = $item->rtl;
-                $this->id             = $item->id;
-                $this->language       = $item->language;
-                $this->namespaces     = $item->namespaces;
-                $this->title          = $item->title;
-
-                $this->xml = new \SimpleXMLElement($item->xml);
-            }
+            $this->xml = new \SimpleXMLElement($this->xml);
         }
     }
 }
