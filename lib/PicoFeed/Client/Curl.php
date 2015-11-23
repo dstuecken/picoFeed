@@ -40,6 +40,13 @@ class Curl extends Client
     private $response_headers_count = 0;
 
     /**
+     * Redirect count, registered for every url
+     *
+     * @var array
+     */
+    private $nb_redirects = array();
+
+    /**
      * cURL callback to read the HTTP body.
      *
      * If the function return -1, curl stop to read the HTTP response
@@ -309,18 +316,23 @@ class Curl extends Client
      */
     private function handleRedirection($location)
     {
-        $nb_redirects = 0;
         $result = array();
         $this->url = Url::resolve($location, $this->url);
+
+        if (!isset($this->nb_redirects[$this->url]))
+        {
+            $this->nb_redirects[$this->url] = 0;
+        }
+
         $this->body = '';
         $this->body_length = 0;
         $this->response_headers = array();
         $this->response_headers_count = 0;
 
         while (true) {
-            ++$nb_redirects;
+            ++$this->nb_redirects[$this->url];
 
-            if ($nb_redirects >= $this->max_redirects) {
+            if ($this->nb_redirects[$this->url] >= $this->max_redirects) {
                 throw new MaxRedirectException('Maximum number of redirections reached');
             }
 
