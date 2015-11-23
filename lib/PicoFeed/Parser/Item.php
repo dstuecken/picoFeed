@@ -113,6 +113,8 @@ class Item
      */
     public function getTag($tag, $attribute = '')
     {
+        if (!($this->xml instanceof \SimpleXMLElement)) return false;
+
         // convert to xPath attribute query
         if ($attribute !== '') {
             $attribute = '/@'.$attribute;
@@ -253,6 +255,10 @@ class Item
         if (trim($this->xml))
         {
             $this->xml = new \SimpleXMLElement($this->xml);
+        }
+        else
+        {
+            $this->xml = null;
         }
     }
 }
