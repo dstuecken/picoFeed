@@ -239,9 +239,9 @@ class Item
      */
     public function __sleep()
     {
-        if ($this->xml)
+        if ($this->xml instanceof \SimpleXMLElement)
         {
-            $this->xml = (string) $this->xml;
+            $this->xml = $this->xml->asXML();
         }
 
         return array_keys(get_object_vars($this));
@@ -252,13 +252,23 @@ class Item
      */
     public function __wakeup()
     {
-        if (trim($this->xml))
+        if ($this->xml)
         {
-            $this->xml = new \SimpleXMLElement($this->xml);
+            $xml = XmlParser::getSimpleXml($this->xml);
+
+            if (is_array($this->namespaces))
+            {
+                foreach ($this->namespaces as $prefix => $ns)
+                {
+                    $xml->registerXPathNamespace($prefix, $ns);
+                }
+            }
+
+            $this->xml = $xml;
         }
         else
         {
-            $this->xml = null;
+            $this->xml = NULL;
         }
     }
 }
