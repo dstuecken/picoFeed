@@ -20,7 +20,10 @@ class SerializeTest
     {
         $parser           = new Rss20(file_get_contents('tests/fixtures/podbean.xml'));
         $feed             = $parser->execute();
-        $feedUnserialized = unserialize(file_get_contents('tests/fixtures/podbean.xml.serialized'));
+
+        $parser2           = new Rss20(file_get_contents('tests/fixtures/podbean.xml'));
+        $feed2             = $parser2->execute();
+        $feedUnserialized = unserialize(serialize($feed2));
 
         foreach ($feed->items as $index => $item)
         {
@@ -32,7 +35,10 @@ class SerializeTest
                 }
                 else
                 {
-                    $this->assertEquals($value, $feedUnserialized->items[$index]->xml);
+                    $this->assertEquals(
+                        trim(html_entity_decode(preg_replace("/U\+([0-9A-F]{4})/", "&#x\\1;", str_replace('<?xml version="1.0"?>', '', $value->asXML())), ENT_NOQUOTES, 'UTF-8')),
+                        trim(html_entity_decode(preg_replace("/U\+([0-9A-F]{4})/", "&#x\\1;", str_replace('<?xml version="1.0"?>', '', $feedUnserialized->items[$index]->xml->asXML())), ENT_NOQUOTES, 'UTF-8'))
+                    );
                 }
             }
         }
