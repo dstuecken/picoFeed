@@ -254,17 +254,7 @@ class Item
     {
         if ($this->xml)
         {
-            $xml = XmlParser::getSimpleXml($this->xml);
-
-            if (is_array($this->namespaces))
-            {
-                foreach ($this->namespaces as $prefix => $ns)
-                {
-                    $xml->registerXPathNamespace($prefix, $ns);
-                }
-            }
-
-            $this->xml = $xml;
+            $this->xml = XmlParser::getSimpleXml($this->xml);
         }
         else
         {
